@@ -12,7 +12,7 @@ class c_snowflake
 {
 private:
 	c_coordinate *pos;
-	uint8_t x_speed = 1;
+	uint8_t x_speed = 0;
 	uint8_t y_speed = 0;
 	const uint8_t *bmp;
 	uint8_t bmp_size = 0;

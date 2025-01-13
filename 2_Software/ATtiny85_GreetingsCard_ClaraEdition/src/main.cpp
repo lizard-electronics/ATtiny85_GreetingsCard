@@ -78,11 +78,7 @@ void setup()
   OzOled.setBrightness(255);
 
   OzOled.clearDisplay();
-  // OzOled.drawBitmap(border_128x32_bmp, 0, 0, 16, 4);
-  OzOled.setCursorXY(6,1);
-  OzOled.printString("ESTE");
-  OzOled.setCursorXY(0,2);
-  OzOled.printString("MICROCONTROLADOR");
+  OzOled.drawBitmap(bmp_message0_128x32, 0, 0, 16, 4);
   delay(1000);
 }
 
@@ -94,9 +90,7 @@ void loop()
     {
       state = 1;
 
-      OzOled.clearDisplay(); 
-      // OzOled.setCursorXY(0,1);
-      // OzOled.printString("STATE 1");
+      OzOled.clearDisplay();
       OzOled.drawBitmap(bmp_message1_128x32, 0, 0, 16, 4);
     }
   }
@@ -106,11 +100,8 @@ void loop()
     {
       state = 2;
 
-      OzOled.clearDisplay(); 
-      OzOled.setCursorXY(0,2);
-      OzOled.printString("STATE 2");
-      OzOled.drawBitmap(heart1_bmp, 0, 0, 1, 1);
-      // OzOled.drawBitmap(bmp_message2_128x32, 0, 0, 16, 4);
+      OzOled.clearDisplay();
+      OzOled.drawBitmap(bmp_message2_128x32, 0, 0, 16, 4);
     }
   }
   else if(state == 2)
@@ -121,8 +112,7 @@ void loop()
 
       OzOled.clearDisplay(); 
       OzOled.setCursorXY(0,3);
-      OzOled.printString("STATE 3");
-      OzOled.drawBitmap(star1_bmp, 0, 0, 1, 1);
+      OzOled.drawBitmap(bmp_message3_128x32, 0, 0, 16, 4);
     }
   }
   else if(state == 3)
@@ -130,7 +120,6 @@ void loop()
     if(readButton(BUTTON_PIN))
     {
       state = 4;
-      OzOled.clearDisplay(); 
     }
   }
   else if(state == 4)
@@ -141,9 +130,8 @@ void loop()
     {
       state = 0;
 
-      OzOled.clearDisplay(); 
-      OzOled.setCursorXY(0,0);
-      OzOled.printString("STATE 0");
+      OzOled.clearDisplay();
+      OzOled.drawBitmap(bmp_message0_128x32, 0, 0, 16, 4);
     }
   }
 }

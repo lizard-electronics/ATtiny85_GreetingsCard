@@ -2,7 +2,8 @@
 
 c_coordinate::c_coordinate()
 {
-	x = (uint8_t)random(0, 127);
+	// x = (uint8_t)random(0, 127);
+	x = (uint8_t)random(0, 15);
 	y = 0;
 }
 
