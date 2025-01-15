@@ -1,12 +1,12 @@
 #include <Arduino.h>
 #include <system_hardware.h>
-#include <buzzer_driver.h>
-// #include <oled_display.h>
 #include <TinyOzOLED.h>
 #include <snowfall.h>
+#include <mini_game.h>
+#include <buzzer.h>
 
-// Greetings Card states:
-static uint8_t state = 0;
+// Greetings Card states
+static uint8_t state = 1;
 
 c_snowfall snowfall;
 
@@ -77,42 +77,43 @@ void setup()
   OzOled.setHorizontalMode(); 
   OzOled.setBrightness(255);
 
-  OzOled.clearDisplay();
-  OzOled.drawBitmap(bmp_message0_128x32, 0, 0, 16, 4);
-  delay(1000);
+  if(digitalRead(BUTTON_PIN))
+  {
+    state = 0;
+    OzOled.printString("Press START", 1, 1);
+  }
+  else
+  {
+    state = 1;
+    OzOled.clearDisplay();
+    OzOled.drawBitmap(bmp_message0_128x32, 0, 0, 16, 4);
+  }
+
+  playStartupSound();
+  delay(2000);
 }
 
 void loop()
 {
   if(state == 0)
   {
-    if(readButton(BUTTON_PIN))
-    {
-      state = 1;
-
-      OzOled.clearDisplay();
-      OzOled.drawBitmap(bmp_message1_128x32, 0, 0, 16, 4);
-    }
+    loopMiniGame();
   }
   else if(state == 1)
   {
-    if(readButton(BUTTON_PIN))
-    {
-      state = 2;
-
-      OzOled.clearDisplay();
-      OzOled.drawBitmap(bmp_message2_128x32, 0, 0, 16, 4);
-    }
+    state = 2;
+    OzOled.clearDisplay();
+    OzOled.drawBitmap(bmp_message1_128x32, 0, 0, 16, 4);
   }
   else if(state == 2)
   {
     if(readButton(BUTTON_PIN))
     {
       state = 3;
+      playButtonFeedback();
 
-      OzOled.clearDisplay(); 
-      OzOled.setCursorXY(0,3);
-      OzOled.drawBitmap(bmp_message3_128x32, 0, 0, 16, 4);
+      OzOled.clearDisplay();
+      OzOled.drawBitmap(bmp_message2_128x32, 0, 0, 16, 4);
     }
   }
   else if(state == 3)
@@ -120,18 +121,59 @@ void loop()
     if(readButton(BUTTON_PIN))
     {
       state = 4;
+      playButtonFeedback();
+
+      OzOled.clearDisplay();
+      OzOled.drawBitmap(bmp_message3_128x32, 0, 0, 16, 4);
     }
   }
   else if(state == 4)
   {
-    snowfallAnimation();
+    const uint64_t PRESS_DELAY = 2000;
+    const uint8_t BAR_START = 3;
+    const uint8_t BAR_DISTANCE = 128-BAR_START*8-BAR_START*8;
+    static bool button_pressed = false;
+    static uint64_t button_since_pressed = 0;
+    uint64_t current_millis = millis();
 
-    if(readButton(BUTTON_PIN))
+    if(digitalRead(BUTTON_PIN)) // Se o botão está pressionado
     {
-      state = 0;
+      if(!button_pressed) // Se o botão acabou de ser pressionado
+      {
+        button_pressed = true;
+        button_since_pressed = current_millis; // Regista o tempo inicial
+      }
+      
+      // Calcula o tempo que o botão está pressionado
+      uint64_t press_progress = current_millis - button_since_pressed;
 
-      OzOled.clearDisplay();
-      OzOled.drawBitmap(bmp_message0_128x32, 0, 0, 16, 4);
+      // Atualiza a barra de progresso na página 3
+      uint8_t progress_bar = map(press_progress, 0, PRESS_DELAY, 0, BAR_DISTANCE); // Escala para 128 pixels de largura
+      OzOled.setCursorXY(BAR_START,3);
+      OzOled.sendCommand(0xB3); // Página 3
+      for(uint8_t i = 0; i < progress_bar; i++) {
+        OzOled.sendData(0xCF); // Desenha pixels preenchidos
+      }
+
+      if(press_progress >= PRESS_DELAY) // Se o botão foi pressionado por 3 segundos
+      {
+        state = 5; // Avança para o próximo estado
+        button_pressed = false; // Reinicia estado do botão
+        playVictory();
+        OzOled.clearDisplay(); // Limpa o display para o próximo estado
+      }
     }
+    else if(button_pressed) // Se o botão foi solto
+    {
+      button_pressed = false; // Reinicia estado do botão
+      OzOled.setCursorXY(BAR_START, 3); 
+      for(uint8_t i = 0; i < BAR_DISTANCE; i++) {
+        OzOled.sendData(0xC0); // Limpa a barra de progresso
+      }
+    }
+  }
+  else if(state == 5)
+  {
+    snowfallAnimation();
   }
 }
