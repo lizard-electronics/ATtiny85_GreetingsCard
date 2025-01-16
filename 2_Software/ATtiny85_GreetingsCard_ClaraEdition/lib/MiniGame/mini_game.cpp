@@ -12,13 +12,15 @@ int8_t obstacleX = SCREEN_WIDTH;
 unsigned long lastFrameTime = 0;
 const uint8_t FRAME_DELAY = 250;
 const uint8_t minFrameDelay = 50;
-const uint8_t frameDecrement = 5;
+const uint8_t frameDecrement = 10;
 
 // Funções internas (não expostas no cabeçalho)
 void drawGround();
 void drawPlayer();
 void drawObstacle();
 bool checkCollision();
+void printStartScreen();
+void printGameOverScreen();
 void resetGame();
 
 // Função principal do loop do jogo
@@ -51,7 +53,7 @@ void loopMiniGame() {
         if (currentFrameDelay > minFrameDelay) {
             currentFrameDelay -= frameDecrement;
         }        
-        if(score++ >= 254) {
+        if(score++ >= 18) {
           playVictory();
           resetGame();
           currentFrameDelay = 200;
@@ -84,17 +86,14 @@ void loopMiniGame() {
 
       if (checkCollision()) {
         gameState = 3;
-        OzOled.clearDisplay();
-        OzOled.printString("Game Over", 0, 1);
-        OzOled.printString("Score: ", 0, 2);
-        OzOled.printString(scoreStr, strlen("Score: "), 2);
-        OzOled.printString("Press to Restart", 0, 3);
+        printGameOverScreen();
         playGameOver();
       }
       break;
 
     case 3: // GAME_OVER
       if (digitalRead(BUTTON_PIN)) {
+        playButtonFeedback();
         resetGame();
         currentFrameDelay = 200;
       }
@@ -109,7 +108,8 @@ void drawGround() {
 }
 
 void drawPlayer() {
-  OzOled.printChar('*', PLAYER_X, playerY);
+  // OzOled.printChar('*', PLAYER_X, playerY);
+  OzOled.drawBitmap(heart1_bmp, PLAYER_X, playerY, 1, 1);
 }
 
 void drawObstacle() {
@@ -121,12 +121,25 @@ bool checkCollision() {
   return (PLAYER_X == obstacleX && playerY + PLAYER_SIZE > GROUND_Y - OBSTACLE_SIZE);
 }
 
+void printStartScreen() {
+  OzOled.clearDisplay();
+  OzOled.printString("= SECRET GAME! =", 0, 0);
+  OzOled.printString("Press to PLAY", 0, 3);
+}
+
+void printGameOverScreen() {  
+  OzOled.clearDisplay();
+  OzOled.printString("Game Over :(", 0, 0);
+  OzOled.printString("Score: ", 0, 1);
+  OzOled.printString(scoreStr, strlen("Score: "), 1);
+  OzOled.printString("Press to RESTART", 0, 3);
+}
+
 void resetGame() {
   playerY = GROUND_Y - PLAYER_SIZE;
   obstacleX = SCREEN_WIDTH;
   isJumping = false;
   score = 0;
   gameState = 1;
-  OzOled.clearDisplay();
-  OzOled.printString("Press START", 1, 1);
+  printStartScreen();
 }

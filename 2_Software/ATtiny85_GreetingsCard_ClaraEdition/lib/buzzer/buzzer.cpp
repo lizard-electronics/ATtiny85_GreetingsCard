@@ -18,7 +18,7 @@ void playTone(int frequency, int duration) {
 void playStartupSound() {
     playTone(NOTE_C4, 250);
     playTone(NOTE_E4, 250);
-    playTone(NOTE_G4, 250);
+    playTone(NOTE_A4, 250);
 }
 
 // Efeito sonoro de feedback ao pressionar o botão

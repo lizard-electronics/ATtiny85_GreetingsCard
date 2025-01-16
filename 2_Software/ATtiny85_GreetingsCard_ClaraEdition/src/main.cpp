@@ -80,7 +80,7 @@ void setup()
   if(digitalRead(BUTTON_PIN))
   {
     state = 0;
-    OzOled.printString("Press START", 1, 1);
+    printStartScreen();
   }
   else
   {
@@ -90,7 +90,6 @@ void setup()
   }
 
   playStartupSound();
-  delay(2000);
 }
 
 void loop()
@@ -101,6 +100,7 @@ void loop()
   }
   else if(state == 1)
   {
+    delay(2000);
     state = 2;
     OzOled.clearDisplay();
     OzOled.drawBitmap(bmp_message1_128x32, 0, 0, 16, 4);
@@ -140,6 +140,7 @@ void loop()
     {
       if(!button_pressed) // Se o botão acabou de ser pressionado
       {
+        playButtonFeedback();
         button_pressed = true;
         button_since_pressed = current_millis; // Regista o tempo inicial
       }

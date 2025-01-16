@@ -4,6 +4,7 @@
 #include <TinyOzOled.h>
 #include <system_hardware.h>
 #include <buzzer.h>
+#include <styles.h>
 
 // Constantes do jogo
 #define SCREEN_WIDTH 16
@@ -15,5 +16,6 @@
 
 // Declarações das funções
 void loopMiniGame();
+void printStartScreen();
 
 #endif
